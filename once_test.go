@@ -19,7 +19,18 @@ func (o *one) Increment() error {
 
 func run(t *testing.T, once *Once, o *one, c chan struct{}) {
 	err := once.Do(func() error {
-		return o.Increment()
+		err := o.Increment()
+		v := *o
+		if err != nil {
+			if v != 1 {
+				t.Errorf("once failed inside run: %d is not 1", v)
+			}
+		} else {
+			if v != 2 {
+				t.Errorf("once failed inside run: %d is not 2", v)
+			}
+		}
+		return err
 	})
 	if err == nil {
 		if v := *o; v != 2 {
